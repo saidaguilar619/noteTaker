@@ -1,20 +1,16 @@
-// Dependencies
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
 
-// Create express app and set port
 const app = express();
 const PORT = 3002;
 
-// Middleware to handle data parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 
 const dbPath = path.join(__dirname, "/db/db.json");
 
-// HTML Routes
 app.get("/", function(req, res) {
     res.sendFile(path.join(__dirname, "/public/index.html"));
 });
@@ -23,7 +19,6 @@ app.get("/notes", function(req, res) {
     res.sendFile(path.join(__dirname, "/public/notes.html"));
 });
 
-// API Routes
 app.get("/api/notes", function(req, res) {
     fs.readFile(dbPath, "utf8", (err, data) => {
         if (err) throw err;
@@ -51,17 +46,15 @@ app.post("/api/notes", function(req, res) {
 });
 
 app.delete("/api/notes/:id", function(req, res) {
-    const idToDelete = req.params.id;
-
+    const deleteId = req.params.id;
     const data = fs.readFileSync(dbPath, "utf8");
-    console.log(data);
     let obj = JSON.parse(data);
-    let objWithoutDeletedID = obj.filter(note => { return note.id != idToDelete });
-    let objString = JSON.stringify(objWithoutDeletedID, null, 2);
+    let objDeletedId = obj.filter(note => { return note.id != deleteId });
+    let objString = JSON.stringify(objDeletedId, null, 2);
 
     fs.writeFile(dbPath, objString, "utf8", err => {
         if (err) throw err;
-        console.log(`Note with id ${idToDelete} has been deleted.`);
+        console.log(`Note with id ${deleteId} has been deleted.`);
     });
 });
 
